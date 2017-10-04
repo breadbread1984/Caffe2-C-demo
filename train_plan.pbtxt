@@ -1,0 +1,750 @@
+name: "mnist_train_plan"
+network{
+	name: "mnist_init_net"
+	op {
+		output: "dbreader"
+		type: "CreateDB"
+		arg {
+			name: "db_type"
+			s: "leveldb"
+		}
+		arg {
+			name: "db"
+			s: "mnist-train-nchw-leveldb"
+		}
+	}
+	op {
+		output: "conv1_w"
+		type: "XavierFill"
+		arg {
+			name: "shape"
+			ints: 20
+			ints: 1
+			ints: 5
+			ints: 5
+		}
+	}
+	op {
+		output: "conv1_b"
+		type: "ConstantFill"
+		arg {
+			name: "shape"
+			ints: 20
+		}
+	}
+	op {
+		output: "conv2_w"
+		type: "XavierFill"
+		arg {
+			name: "shape"
+			ints: 50
+			ints: 20
+			ints: 5
+			ints: 5
+		}
+	}
+	op {
+		output: "conv2_b"
+		type: "ConstantFill"
+		arg {
+			name: "shape"
+			ints: 50
+		}
+	}
+	op {
+		output: "fc3_w"
+		type: "XavierFill"
+		arg {
+			name: "shape"
+			ints: 500
+			ints: 800
+		}
+	}
+	op {
+		output: "fc3_b"
+		type: "ConstantFill"
+		arg {
+			name: "shape"
+			ints: 500
+		}
+	}
+	op {
+		output: "pred_w"
+		type: "XavierFill"
+		arg {
+			name: "shape"
+			ints: 10
+			ints: 500
+		}
+	}
+	op {
+		output: "pred_b"
+		type: "ConstantFill"
+		arg {
+			name: "shape"
+			ints: 10
+		}
+	}
+	op {
+		output: "iter"
+		type: "ConstantFill"
+		arg {
+			name: "shape"
+			ints: 1
+		}
+		arg {
+			name: "value"
+			i: 0
+		}
+		arg {
+			name: "dtype"
+			i: 10
+		}
+		device_option {
+			device_type: 0
+		}
+	}
+	op {
+		output: "ONE"
+		type: "ConstantFill"
+		arg {
+			name: "shape"
+			ints: 1
+		}
+		arg {
+			name: "value"
+			f: 1
+		}
+	}
+	device_option {
+		device_type: 1
+	} 
+}
+network{
+	name: "mnist_train_net"
+	op {
+		input: "dbreader"
+		output: "data_uint8"
+		output: "label"
+		type: "TensorProtosDBInput"
+		arg {
+			name: "batch_size"
+			i: 100
+		}
+	}
+	op {
+		input: "data_uint8"
+		output: "data"
+		type: "Cast"
+		arg {
+			name: "to"
+			i: 1
+		}
+	}
+	op {
+		input: "data"
+		output: "data"
+		type: "Scale"
+		arg {
+			name: "scale"
+			f: 0.00390625
+		}
+	}
+	op {
+		input: "data"
+		output: "data"
+		type: "StopGradient"
+	}
+	op {
+		input: "data"
+		input: "conv1_w"
+		input: "conv1_b"
+		output: "conv1"
+		type: "Conv"
+		arg {
+			name: "stride"
+			i: 1
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 5
+		}
+	}
+	op {
+		input: "conv1"
+		output: "pool1"
+		type: "MaxPool"
+		arg {
+			name: "stride"
+			i: 2
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 2
+		}
+		arg {
+			name: "order"
+			s: "NCHW"
+		}
+		arg {
+			name: "legacy_pad"
+			i: 3
+		}
+	}
+	op {
+		input: "pool1"
+		input: "conv2_w"
+		input: "conv2_b"
+		output: "conv2"
+		type: "Conv"
+		arg {
+			name: "stride"
+			i: 1
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 5
+		}
+	}
+	op {
+		input: "conv2"
+		output: "pool2"
+		type: "MaxPool"
+		arg {
+			name: "stride"
+			i: 2
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 2
+		}
+		arg {
+			name: "order"
+			s: "NCHW"
+		}
+		arg {
+			name: "legacy_pad"
+			i: 3
+		}
+	}
+	op {
+		input: "pool2"
+		input: "fc3_w"
+		input: "fc3_b"
+		output: "fc3"
+		type: "FC"
+	}
+	op {
+		input: "fc3"
+		output: "fc3"
+		type: "Relu"
+	}
+	op {
+		input: "fc3"
+		input: "pred_w"
+		input: "pred_b"
+		output: "pred"
+		type: "FC"
+	}
+	op {
+		input: "pred"
+		output: "softmax"
+		type: "Softmax"
+	}
+	op {
+		input: "softmax"
+		input: "label"
+		output: "xent"
+		type: "LabelCrossEntropy"
+	}
+	op {
+		input: "xent"
+		output: "loss"
+		type: "AveragedLoss"
+	}
+	op {
+		input: "softmax"
+		input: "label"
+		output: "accuracy"
+		type: "Accuracy"
+	}
+	op {
+		input: "iter"
+		output: "iter"
+		type: "Iter"
+	}
+	op {
+		input: "loss"
+		output: "loss_grad"
+		type: "ConstantFill"
+		arg {
+			name: "value"
+			f: 1
+		}
+	}
+	op {
+		input: "xent"
+		input: "loss_grad"
+		output: "xent_grad"
+		name: ""
+		type: "AveragedLossGradient"
+		is_gradient_op: true
+	}
+	op {
+		input: "softmax"
+		input: "label"
+		input: "xent_grad"
+		output: "softmax_grad"
+		name: ""
+		type: "LabelCrossEntropyGradient"
+		is_gradient_op: true
+	}
+	op {
+		input: "softmax"
+		input: "softmax_grad"
+		output: "pred_grad"
+		name: ""
+		type: "SoftmaxGradient"
+		is_gradient_op: true
+	}
+	op {
+		input: "fc3"
+		input: "pred_w"
+		input: "pred_grad"
+		output: "pred_w_grad"
+		output: "pred_b_grad"
+		output: "fc3_grad"
+		name: ""
+		type: "FCGradient"
+		is_gradient_op: true
+	}
+	op {
+		input: "fc3"
+		input: "fc3_grad"
+		output: "fc3_grad"
+		name: ""
+		type: "ReluGradient"
+		is_gradient_op: true
+	}
+	op {
+		input: "pool2"
+		input: "fc3_w"
+		input: "fc3_grad"
+		output: "fc3_w_grad"
+		output: "fc3_b_grad"
+		output: "pool2_grad"
+		name: ""
+		type: "FCGradient"
+		is_gradient_op: true
+	}
+	op {
+		input: "conv2"
+		input: "pool2"
+		input: "pool2_grad"
+		output: "conv2_grad"
+		name: ""
+		type: "MaxPoolGradient"
+		arg {
+			name: "stride"
+			i: 2
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 2
+		}
+		arg {
+			name: "order"
+			s: "NCHW"
+		}
+		arg {
+			name: "legacy_pad"
+			i: 3
+		}
+		is_gradient_op: true
+	}
+	op {
+		input: "pool1"
+		input: "conv2_w"
+		input: "conv2_grad"
+		output: "conv2_w_grad"
+		output: "conv2_b_grad"
+		output: "pool1_grad"
+		name: ""
+		type: "ConvGradient"
+		arg {
+			name: "stride"
+			i: 1
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 5
+		}
+		is_gradient_op: true
+	}
+	op {
+		input: "conv1"
+		input: "pool1"
+		input: "pool1_grad"
+		output: "conv1_grad"
+		name: ""
+		type: "MaxPoolGradient"
+		arg {
+			name: "stride"
+			i: 2
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 2
+		}
+		arg {
+			name: "order"
+			s: "NCHW"
+		}
+		arg {
+			name: "legacy_pad"
+			i: 3
+		}
+		is_gradient_op: true
+	}
+	op {
+		input: "data"
+		input: "conv1_w"
+		input: "conv1_grad"
+		output: "conv1_w_grad"
+		output: "conv1_b_grad"
+		output: "data_grad"
+		name: ""
+		type: "ConvGradient"
+		arg {
+			name: "stride"
+			i: 1
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 5
+		}
+		is_gradient_op: true
+	}
+	op {
+		input: "iter"
+		output: "LR"
+		type: "LearningRate"
+		arg {
+			name: "policy"
+			s: "step"
+		}
+		arg {
+			name: "stepsize"
+			i: 1
+		}
+		arg {
+			name: "base_lr"
+			f: -0.1
+		}
+		arg {
+			name: "gamma"
+			f: 0.999
+		}
+	}
+	op {
+		input: "conv1_w"
+		input: "ONE"
+		input: "conv1_w_grad"
+		input: "LR"
+		output: "conv1_w"
+		type: "WeightedSum"
+	}
+	op {
+		input: "conv1_b"
+		input: "ONE"
+		input: "conv1_b_grad"
+		input: "LR"
+		output: "conv1_b"
+		type: "WeightedSum"
+	}
+	op {
+		input: "conv2_w"
+		input: "ONE"
+		input: "conv2_w_grad"
+		input: "LR"
+		output: "conv2_w"
+		type: "WeightedSum"
+	}
+	op {
+		input: "conv2_b"
+		input: "ONE"
+		input: "conv2_b_grad"
+		input: "LR"
+		output: "conv2_b"
+		type: "WeightedSum"
+	}
+	op {
+		input: "fc3_w"
+		input: "ONE"
+		input: "fc3_w_grad"
+		input: "LR"
+		output: "fc3_w"
+		type: "WeightedSum"
+	}
+	op {
+		input: "fc3_b"
+		input: "ONE"
+		input: "fc3_b_grad"
+		input: "LR"
+		output: "fc3_b"
+		type: "WeightedSum"
+	}
+	op {
+		input: "pred_w"
+		input: "ONE"
+		input: "pred_w_grad"
+		input: "LR"
+		output: "pred_w"
+		type: "WeightedSum"
+	}
+	op {
+		input: "pred_b"
+		input: "ONE"
+		input: "pred_b_grad"
+		input: "LR"
+		output: "pred_b"
+		type: "WeightedSum"
+	}
+	op {
+		input: "accuracy"
+		type: "Print"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "loss"
+		type: "Print"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "conv1_w"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "conv1_w_grad"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "conv1_b"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "conv1_b_grad"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "conv2_w"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "conv2_w_grad"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "conv2_b"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "conv2_b_grad"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "fc3_w"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "fc3_w_grad"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "fc3_b"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "fc3_b_grad"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "pred_w"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "pred_w_grad"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "pred_b"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	op {
+		input: "pred_b_grad"
+		type: "Summarize"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	device_option {
+		device_type: 1
+	}
+	external_input: "dbreader"
+	external_input: "conv1_w"
+	external_input: "conv1_b"
+	external_input: "conv2_w"
+	external_input: "conv2_b"
+	external_input: "fc3_w"
+	external_input: "fc3_b"
+	external_input: "pred_w"
+	external_input: "pred_b"
+	external_input: "iter"
+	external_input: "ONE"
+}
+network{
+	name: "mnist_save_net"
+	op {
+		type: "Save"
+		input: "conv1_w"
+		input: "conv1_b"
+		input: "conv2_w"
+		input: "conv2_b"
+		input: "fc3_w"
+		input: "fc3_b"
+		input: "pred_w"
+		input: "pred_b"
+		arg {
+			name: "db"
+			s: "LeNet_params"
+		}
+		arg {
+			name: "db_type"
+			s: "lmdb"
+		}
+	}
+	external_input: "conv1_w"
+	external_input: "conv1_b"
+	external_input: "conv2_w"
+	external_input: "conv2_b"
+	external_input: "fc3_w"
+	external_input: "fc3_b"
+	external_input: "pred_w"
+	external_input: "pred_b"
+	device_option {
+		device_type: 1
+	}
+}
+execution_step {
+	substep {
+		network: "mnist_init_net"
+		num_iter: 1
+	}
+	substep {
+		network: "mnist_train_net"
+		num_iter: 600
+	}
+	substep {
+		network: "mnist_save_net"
+		num_iter: 1
+	}
+}

@@ -1,0 +1,222 @@
+name: "mnist_train_plan"
+network{
+	name: "mnist_init_net"
+	op {
+		output: "dbreader"
+		type: "CreateDB"
+		arg {
+			name: "db_type"
+			s: "leveldb"
+		}
+		arg {
+			name: "db"
+			s: "mnist-test-nchw-leveldb"
+		}
+	}
+	op {
+		type: "Load"
+		output: "conv1_w"
+		output: "conv1_b"
+		output: "conv2_w"
+		output: "conv2_b"
+		output: "fc3_w"
+		output: "fc3_b"
+		output: "pred_w"
+		output: "pred_b"
+		arg {
+			name: "db"
+			s: "LeNet_params"
+		}
+		arg {
+			name: "db_type"
+			s: "lmdb"
+		}
+	}
+	device_option {
+		device_type: 1
+	} 
+}
+network{
+	name: "mnist_test_net"
+	op {
+		input: "dbreader"
+		output: "data_uint8"
+		output: "label"
+		type: "TensorProtosDBInput"
+		arg {
+			name: "batch_size"
+			i: 100
+		}
+	}
+	op {
+		input: "data_uint8"
+		output: "data"
+		type: "Cast"
+		arg {
+			name: "to"
+			i: 1
+		}
+	}
+	op {
+		input: "data"
+		output: "data"
+		type: "Scale"
+		arg {
+			name: "scale"
+			f: 0.00390625
+		}
+	}
+	op {
+		input: "data"
+		output: "data"
+		type: "StopGradient"
+	}
+	op {
+		input: "data"
+		input: "conv1_w"
+		input: "conv1_b"
+		output: "conv1"
+		type: "Conv"
+		arg {
+			name: "stride"
+			i: 1
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 5
+		}
+	}
+	op {
+		input: "conv1"
+		output: "pool1"
+		type: "MaxPool"
+		arg {
+			name: "stride"
+			i: 2
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 2
+		}
+		arg {
+			name: "order"
+			s: "NCHW"
+		}
+		arg {
+			name: "legacy_pad"
+			i: 3
+		}
+	}
+	op {
+		input: "pool1"
+		input: "conv2_w"
+		input: "conv2_b"
+		output: "conv2"
+		type: "Conv"
+		arg {
+			name: "stride"
+			i: 1
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 5
+		}
+	}
+	op {
+		input: "conv2"
+		output: "pool2"
+		type: "MaxPool"
+		arg {
+			name: "stride"
+			i: 2
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 2
+		}
+		arg {
+			name: "order"
+			s: "NCHW"
+		}
+		arg {
+			name: "legacy_pad"
+			i: 3
+		}
+	}
+	op {
+		input: "pool2"
+		input: "fc3_w"
+		input: "fc3_b"
+		output: "fc3"
+		type: "FC"
+	}
+	op {
+		input: "fc3"
+		output: "fc3"
+		type: "Relu"
+	}
+	op {
+		input: "fc3"
+		input: "pred_w"
+		input: "pred_b"
+		output: "pred"
+		type: "FC"
+	}
+	op {
+		input: "pred"
+		output: "softmax"
+		type: "Softmax"
+	}
+	op {
+		input: "softmax"
+		input: "label"
+		output: "accuracy"
+		type: "Accuracy"
+	}
+	op {
+		input: "accuracy"
+		type: "Print"
+		arg {
+			name: "to_file"
+			i: 1
+		}
+	}
+	device_option {
+		device_type: 1
+	}
+	external_input: "dbreader"
+	external_input: "conv1_w"
+	external_input: "conv1_b"
+	external_input: "conv2_w"
+	external_input: "conv2_b"
+	external_input: "fc3_w"
+	external_input: "fc3_b"
+	external_input: "pred_w"
+	external_input: "pred_b"
+}
+execution_step {
+	substep {
+		network: "mnist_init_net"
+		num_iter: 1
+	}
+	substep {
+		network: "mnist_test_net"
+		num_iter: 100
+	}
+}

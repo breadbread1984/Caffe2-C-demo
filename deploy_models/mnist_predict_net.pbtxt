@@ -1,0 +1,124 @@
+	name: "mnist_train_net"
+	op {
+		input: "data"
+		input: "conv1_w"
+		input: "conv1_b"
+		output: "conv1"
+		type: "Conv"
+		arg {
+			name: "stride"
+			i: 1
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 5
+		}
+	}
+	op {
+		input: "conv1"
+		output: "pool1"
+		type: "MaxPool"
+		arg {
+			name: "stride"
+			i: 2
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 2
+		}
+		arg {
+			name: "order"
+			s: "NCHW"
+		}
+		arg {
+			name: "legacy_pad"
+			i: 3
+		}
+	}
+	op {
+		input: "pool1"
+		input: "conv2_w"
+		input: "conv2_b"
+		output: "conv2"
+		type: "Conv"
+		arg {
+			name: "stride"
+			i: 1
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 5
+		}
+	}
+	op {
+		input: "conv2"
+		output: "pool2"
+		type: "MaxPool"
+		arg {
+			name: "stride"
+			i: 2
+		}
+		arg {
+			name: "pad"
+			i: 0
+		}
+		arg {
+			name: "kernel"
+			i: 2
+		}
+		arg {
+			name: "order"
+			s: "NCHW"
+		}
+		arg {
+			name: "legacy_pad"
+			i: 3
+		}
+	}
+	op {
+		input: "pool2"
+		input: "fc3_w"
+		input: "fc3_b"
+		output: "fc3"
+		type: "FC"
+	}
+	op {
+		input: "fc3"
+		output: "fc3"
+		type: "Relu"
+	}
+	op {
+		input: "fc3"
+		input: "pred_w"
+		input: "pred_b"
+		output: "pred"
+		type: "FC"
+	}
+	op {
+		input: "pred"
+		output: "softmax"
+		type: "Softmax"
+	}
+	device_option {
+		device_type: 1
+	}
+	external_input: "conv1_w"
+	external_input: "conv1_b"
+	external_input: "conv2_w"
+	external_input: "conv2_b"
+	external_input: "fc3_w"
+	external_input: "fc3_b"
+	external_input: "pred_w"
+	external_input: "pred_b"

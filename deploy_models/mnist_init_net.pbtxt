@@ -1,0 +1,24 @@
+	name: "mnist_init_net"
+	#注意所有的fill操作符都变成了一个Load操作符
+	op {
+		type: "Load"
+		output: "conv1_w"
+		output: "conv1_b"
+		output: "conv2_w"
+		output: "conv2_b"
+		output: "fc3_w"
+		output: "fc3_b"
+		output: "pred_w"
+		output: "pred_b"
+		arg {
+			name: "db"
+			s: "LeNet_params"
+		}
+		arg {
+			name: "db_type"
+			s: "lmdb"
+		}
+	}
+	device_option {
+		device_type: 1
+	} 
