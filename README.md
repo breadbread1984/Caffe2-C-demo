@@ -1,7 +1,7 @@
 # Caffe2 C++ demo
 ### Introduction
 
-This demo shows how Caffe2 train models, save params and works with C++ language. Generally, Caffe2 has a tool called run_plan which is a counterpart of the executable caffe of Caffe1.
+This demo shows how Caffe2 train models, save params and works with C++ language. Generally, Caffe2 has a tool called run_plan which is a counterpart of the executable caffe of Caffe1. We can train model with run_plan in command line and use the trained params in C++. The process is almost the same as Caffe1.
 
 ### download mnist dataset and convert it into leveldb format
 ```Shell
