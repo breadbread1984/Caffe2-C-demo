@@ -15,16 +15,16 @@ Caffe2Net::~Caffe2Net()
 
 vector<float> Caffe2Net::predict(Mat img)
 {
-}
-
-TensorCPU Caffe2Net::preprocess(Mat img)
-{
-}
-
-TensorCPU Caffe2Net::predict_(Mat img)
-{
-	TensorCPU context = preprocess(img);
+	TensorCPU context = preProcess(img);
 	Predictor::TensorVector input({&context}),output;
 	predictor->run(input,&output);
-	return *(output[0]);
+	return postProcess(*(output[0]));
+}
+
+TensorCPU Caffe2Net::preProcess(Mat img)
+{
+}
+
+vector<float> Caffe2Net::postProcess(TensorCPU output)
+{
 }

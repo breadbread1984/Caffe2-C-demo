@@ -12,21 +12,7 @@ LeNet::~LeNet()
 {
 }
 
-vector<float> LeNet::predict(Mat img)
-{
-	TensorCPU output = predict_(img);
-	const float * probs = output.data<float>();
-	vector<TIndex> dims = output.dims();
-	//检查输出的dims是否正确
-	assert(2 == output.ndim());
-	assert(1 == dims[0]);
-	assert(10 == dims[1]);
-	vector<float> retVal(dims[1]);
-	copy(probs,probs+dims[1],retVal.begin());
-	return retVal;
-}
-
-TensorCPU LeNet::preprocess(Mat img)
+TensorCPU LeNet::preProcess(Mat img)
 {
 	assert(img.channels() == 1);
 	assert(img.rows == 28);
@@ -38,4 +24,17 @@ TensorCPU LeNet::preprocess(Mat img)
 	copy((float *)img.datastart, (float *)img.dataend,data.begin());
 	
 	return TensorCPU(dims, data, NULL);
+}
+
+vector<float> LeNet::postProcess(TensorCPU output)
+{
+	const float * probs = output.data<float>();
+	vector<TIndex> dims = output.dims();
+	//检查输出的dims是否正确
+	assert(2 == output.ndim());
+	assert(1 == dims[0]);
+	assert(10 == dims[1]);
+	vector<float> retVal(dims[1]);
+	copy(probs,probs+dims[1],retVal.begin());
+	return retVal;
 }

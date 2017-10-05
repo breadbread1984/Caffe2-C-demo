@@ -11,9 +11,9 @@ class LeNet : public Caffe2Net {
 public:
 	LeNet(string initNet,string predictNet,string param);
 	virtual ~LeNet();
-	virtual vector<float> predict(Mat img);
 protected:
-	virtual TensorCPU preprocess(Mat img);
+	virtual TensorCPU preProcess(Mat img);
+	virtual vector<float> postProcess(TensorCPU output);
 };
 
 #endif
