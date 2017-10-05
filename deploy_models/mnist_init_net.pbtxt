@@ -1,6 +1,14 @@
 	name: "mnist_init_net"
 	#注意所有的fill操作符都变成了一个Load操作符
 	op {
+		type: "ConstantFill"
+		output: "data"
+		arg {
+			name: "shape"
+			ints: 1
+		}
+	}
+	op {
 		type: "Load"
 		output: "conv1_w"
 		output: "conv1_b"
@@ -20,5 +28,5 @@
 		}
 	}
 	device_option {
-		device_type: 1
+		device_type: 0
 	} 

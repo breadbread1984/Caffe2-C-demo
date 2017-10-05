@@ -1,4 +1,4 @@
-	name: "mnist_train_net"
+	name: "mnist_predict_net"
 	op {
 		input: "data"
 		input: "conv1_w"
@@ -112,8 +112,9 @@
 		type: "Softmax"
 	}
 	device_option {
-		device_type: 1
+		device_type: 0
 	}
+	external_input: "data"
 	external_input: "conv1_w"
 	external_input: "conv1_b"
 	external_input: "conv2_w"
@@ -122,3 +123,4 @@
 	external_input: "fc3_b"
 	external_input: "pred_w"
 	external_input: "pred_b"
+	external_output: "softmax"

@@ -17,11 +17,12 @@ vector<float> LeNet::predict(Mat img)
 	TensorCPU output = predict_(img);
 	const float * probs = output.data<float>();
 	vector<TIndex> dims = output.dims();
+	//检查输出的dims是否正确
+	assert(2 == output.ndim());
 	assert(1 == dims[0]);
-	//batchsize=1
-	vector<float> retVal;
-	for(int i = 0 ; i < dims[1] * dims[2] * dims[3] ; i++)
-		retVal.push_back(probs[i]);
+	assert(10 == dims[1]);
+	vector<float> retVal(dims[1]);
+	copy(probs,probs+dims[1],retVal.begin());
 	return retVal;
 }
 
