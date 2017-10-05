@@ -28,10 +28,10 @@ vector<float> LeNet::predict(Mat img)
 TensorCPU LeNet::preprocess(Mat img)
 {
 	assert(img.channels() == 1);
-	assert(img.rows == 20);
-	assert(img.cols == 20);
+	assert(img.rows == 28);
+	assert(img.cols == 28);
 	vector<TIndex> dims({1, img.channels(), img.rows, img.cols});
-	vector<float> data(1 * 1 * 20 * 20);
+	vector<float> data(1 * 1 * 28 * 28);
 	
 	img.convertTo(img, CV_32FC1, 1.0/256,0);
 	copy((float *)img.datastart, (float *)img.dataend,data.begin());

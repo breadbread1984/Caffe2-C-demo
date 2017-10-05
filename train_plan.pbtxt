@@ -122,6 +122,16 @@ network{
 }
 network{
 	name: "mnist_train_net"
+	
+#						size									channel				byte
+#input			28										1						28x28x1
+#conv1			(28-5+0)/1+1=24		20					24x24x20
+#pool1			(24-2+0)/2+1=12		20					12x12x20
+#conv2			(12-5+0)/1+1=8			50					8x8x50
+#pool2			(8-2+0)/2+1=24			50					4x4x50
+#fc3(relu)		1											500					1x1x500
+#pred				1											10					1x1x10
+
 	op {
 		input: "dbreader"
 		output: "data_uint8"
