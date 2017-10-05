@@ -5,7 +5,7 @@ OBJS=$(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
 
 all: train test predictor
 
-predictor: src/Caffe2Net.o src/LeNet.o src/main.o
+predictor: $(OBJS)
 	$(CXX) $^ $(LIBS) -o ${@}
 
 .PHONY: train test dataset
@@ -20,10 +20,10 @@ dataset:
 	$(RM) -r tmp
 
 train: train_plan.pbtxt
-	run_plan --plan train_plan.pbtxt
+	run_plan --plan $^
 	
 test: test_plan.pbtxt
-	run_plan --plan test_plan.pbtxt
+	run_plan --plan $^
 	
 clean:
 	$(RM) *.log *.summary
