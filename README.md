@@ -26,7 +26,7 @@ check out accuracy.txt to verify whether the model is properly trained.
 ```Shell
 make predictor
 ```
-you can use the predictor to classify single channel 20x20 mnist like handwriting pics. There are some samples extracted from MNIST. You can test on them with the following command.
+you can use the predictor to classify single channel 28x28 mnist like handwriting pics. There are some samples extracted from MNIST. You can test on them with the following command.
 ```Shell
 ./predictor -i imgs/0.bmp
 ```
