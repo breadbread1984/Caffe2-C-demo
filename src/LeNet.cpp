@@ -3,8 +3,8 @@
 
 using namespace std;
 
-LeNet::LeNet(string initNet,string predictNet,string param)
-:Caffe2Net(initNet,predictNet,param)
+LeNet::LeNet(string initNet,string predictNet)
+:Caffe2Net(initNet,predictNet)
 {
 }
 

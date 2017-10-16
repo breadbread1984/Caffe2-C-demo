@@ -16,7 +16,7 @@ using namespace caffe2;
 
 class Caffe2Net {
 public:
-	Caffe2Net(string initNet,string predictNet,string param);
+	Caffe2Net(string initNet,string predictNet);
 	virtual ~Caffe2Net() = 0;
 	vector<float> predict(Mat img);
 protected:

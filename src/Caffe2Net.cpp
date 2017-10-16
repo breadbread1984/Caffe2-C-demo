@@ -1,6 +1,6 @@
 #include "Caffe2Net.h"
 
-Caffe2Net::Caffe2Net(string initNet,string predictNet,string param)
+Caffe2Net::Caffe2Net(string initNet,string predictNet)
 {
 	//载入部署模型
 	CAFFE_ENFORCE(ReadProtoFromFile(initNet, &init_net));

@@ -31,7 +31,7 @@ int main(int argc,char ** argv)
 		return EXIT_FAILURE;
 	}
 	
-	LeNet lenet("deploy_models/mnist_init_net.pbtxt","deploy_models/mnist_predict_net.pbtxt","LeNet_params");
+	LeNet lenet("deploy_models/mnist_init_net.pbtxt","deploy_models/mnist_predict_net.pbtxt");
 	vector<float> result = lenet.predict(img);
 	vector<float>::iterator max_iter = max_element(result.begin(),result.end());
 	cout<<max_iter - result.begin()<<endl;

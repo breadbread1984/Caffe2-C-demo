@@ -9,7 +9,7 @@ using namespace caffe2;
 
 class LeNet : public Caffe2Net {
 public:
-	LeNet(string initNet,string predictNet,string param);
+	LeNet(string initNet,string predictNet);
 	virtual ~LeNet();
 protected:
 	virtual TensorCPU preProcess(Mat img);
