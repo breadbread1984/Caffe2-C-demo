@@ -1,6 +1,6 @@
 CAFFE2_PREFIX=/home/xieyi/opt/caffe2
 CXXFLAGS = `pkg-config --cflags opencv eigen3` -Isrc -I${CAFFE2_PREFIX}/include -std=c++14
-LIBS=`pkg-config --libs opencv eigen3` -lboost_program_options -L${CAFFE2_PREFIX}/lib -lCaffe2_GPU -lCaffe2_CPU -lglog
+LIBS=`pkg-config --libs opencv eigen3` -lboost_program_options -L${CAFFE2_PREFIX}/lib -lcaffe2_gpu -lcaffe2 -lglog
 OBJS=$(patsubst %.cpp,%.o,$(wildcard src/*.cpp))
 
 all: train test predictor
