@@ -112,7 +112,7 @@
 		type: "Softmax"
 	}
 	device_option {
-		device_type: 0
+		device_type: 1
 	}
 	external_input: "data"
 	external_input: "conv1_w"

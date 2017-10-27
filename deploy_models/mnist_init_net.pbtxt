@@ -28,5 +28,5 @@
 		}
 	}
 	device_option {
-		device_type: 0
+		device_type: 1
 	} 

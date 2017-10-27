@@ -23,8 +23,8 @@ protected:
 	virtual TensorCPU preProcess(Mat img) = 0;
 	virtual vector<float> postProcess(TensorCPU output) = 0;
 
-	NetDef init_net, predict_net;
-	auto_ptr<Predictor> predictor;
+	Workspace workspace;
+	unique_ptr<NetBase> predict_net;
 };
 
 #endif
